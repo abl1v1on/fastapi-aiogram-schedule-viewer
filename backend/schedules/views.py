@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, UploadFile, status, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import date
 
@@ -17,17 +17,13 @@ router = APIRouter(
 SessionDependency = Depends(db_helper.session_dependency)
 
 
-@router.get('', response_model=Schedule)
-async def get_today_schedule(session: AsyncSession = SessionDependency, schedule_date: date = utils.get_current_date()):
+@router.get('')
+async def get_schedule(session: AsyncSession = SessionDependency, schedule_date: date = utils.get_current_date()):
     schedule = await utils.get_schedule(session, schedule_date)
 
     if schedule:
-        return FileResponse(
-            path=f'{settings.PATH_TO_IMAGES}/{schedule_date}.jpg',
-            status_code=status.HTTP_200_OK,
-            filename=f'{schedule_date}.jpg',
-            media_type='multipart/form-data'
-        )
+        # return schedule
+        return RedirectResponse(url=f'http://127.0.0.1:8000/schedules_images/{schedule.image}.jpg')
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
         detail=f'Расписание за {schedule_date} не найдено'

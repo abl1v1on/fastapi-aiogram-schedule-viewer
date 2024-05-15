@@ -1,6 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
+from fastapi.staticfiles import StaticFiles
 
 from core.models import db_helper, Base
 from schedules import schedule_router
@@ -15,6 +16,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan, version='0.1', title='ScheduleViewer')
 app.include_router(schedule_router)
+# Изменить папку со статикой!!!
+app.mount('/schedules_images', StaticFiles(directory='schedules_images'), name='schedule_images')
 
 
 if __name__ == '__main__':
